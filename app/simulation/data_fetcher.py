@@ -1,19 +1,22 @@
 import yfinance as yf
 import pandas as pd
 from datetime import datetime
+import time
 
+# In-memory dictionary cache tracking exact TTL expirations
+_historical_cache = {}
+CACHE_TTL = 86400  # 1 day TTL in seconds
 
-def fetch_data(ticker: str, start_date: str) -> list[dict]:
+def fetch_historical_data(ticker: str, start_date: str) -> list[dict]:
     """
-    Fetch historical daily prices for a given asset.
-
-    Args:
-        ticker (str): Asset ticker (e.g., 'AAPL', 'BTC-USD')
-        start_date (str): Start date in 'YYYY-MM-DD'
-
-    Returns:
-        List[Dict]: [{ "date": "YYYY-MM-DD", "price": float }]
+    Fetch historical daily prices for a given asset, relying safely on a 1-day cache logic.
     """
+    cache_key = f"{ticker}_{start_date}"
+    now = time.time()
+    
+    # TTL Cache Validation Check
+    if cache_key in _historical_cache and _historical_cache[cache_key]["expires_at"] > now:
+        return _historical_cache[cache_key]["data"]
 
     try:
         asset = yf.Ticker(ticker)
@@ -22,19 +25,15 @@ def fetch_data(ticker: str, start_date: str) -> list[dict]:
         if df.empty:
             raise ValueError(f"No data found for ticker '{ticker}'")
 
-        # Keep only closing price
+        # Normalize metrics and discard all columns except Close
         df = df[['Close']].copy()
-
-        # Normalize dates (remove time + timezone)
         df.index = df.index.normalize().tz_localize(None)
 
-        # Create full date range (fill missing days)
         today = datetime.today().strftime("%Y-%m-%d")
         all_dates = pd.date_range(start=start_date, end=today, freq='D')
-
         df = df.reindex(all_dates).ffill().bfill()
 
-        # Convert to required format
+        # Format output
         result = [
             {
                 "date": date.strftime("%Y-%m-%d"),
@@ -43,7 +42,30 @@ def fetch_data(ticker: str, start_date: str) -> list[dict]:
             for date, row in df.iterrows()
         ]
 
+        # Insert into live TTL cache
+        _historical_cache[cache_key] = {"data": result, "expires_at": now + CACHE_TTL}
+
         return result
 
     except Exception as e:
-        raise ValueError(f"Error fetching data: {str(e)}")
+        raise ValueError(f"Error fetching historical data: {str(e)}")
+
+def fetch_live_price(ticker: str) -> float:
+    """
+    Fetches the instantaneous latest closing price. DO NOT CACHE under any circumstance.
+    """
+    try:
+        asset = yf.Ticker(ticker)
+        df = asset.history(period="1d")
+        
+        if df.empty:
+            raise ValueError(f"No live data found for ticker '{ticker}'")
+            
+        return float(df['Close'].iloc[-1])
+    except Exception as e:
+        raise ValueError(f"Error fetching live price: {str(e)}")
+
+
+def fetch_data(ticker: str, start_date: str) -> list[dict]:
+    """Legacy Wrapper Endpoint, safely redirects to historical cache"""
+    return fetch_historical_data(ticker, start_date)
