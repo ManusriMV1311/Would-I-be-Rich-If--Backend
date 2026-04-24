@@ -2,34 +2,34 @@ import hashlib
 
 # Commentary pools by outcome tier
 _HIGH_GAIN = [
-    "You could've retired to a beach by now. Probably a nice one. With a butler.",
-    "That's enough money to start your own country. A small one, but still.",
-    "Your future self is looking back at you with either love or pure rage right now.",
-    "Wall Street would've put you on a poster. A very confusing poster.",
-    "This is the part where you call your parents and tell them you were right.",
+    "You could have retired to a beach by now. Probably a nice one with a butler.",
+    "That is enough money to start your own country. A small one, but still.",
+    "Your future self is either deeply grateful or absolutely furious right now.",
+    "Wall Street would have put you on a poster. A very confusing one.",
+    "This is the part where you call your parents and tell them you were right all along.",
 ]
 
 _MODERATE_GAIN = [
-    "Not bad. You wouldn't be rich-rich, but you'd definitely upgrade your coffee order.",
-    "That's a solid new car. Or a very extravagant sofa. You do you.",
-    "Respectable gains. Your financial advisor would nod approvingly.",
-    "You'd be ahead of most people. Which, honestly, is enough.",
-    "Not a yacht, but definitely a really nice kayak.",
+    "Not bad at all. You would not be rich-rich, but you could definitely upgrade your coffee order.",
+    "That is a solid new car. Or a very extravagant sofa. You do you.",
+    "Respectable gains. Your financial advisor would nod approvingly and say nothing else.",
+    "You would be ahead of most people. Which, honestly, is enough.",
+    "Not a yacht. But definitely a really nice kayak.",
 ]
 
 _SMALL_GAIN = [
-    "You'd be slightly better off. Like, 'extra guacamole' better off.",
+    "You would be slightly better off. Like, extra guacamole better off.",
     "A small win is still a win. Your coffee fund would thank you.",
     "At least you beat inflation. Probably. Maybe. Ask an economist.",
     "Baby steps. Every portfolio starts somewhere.",
-    "You'd be ahead — just not in a 'retire at 40' kind of way.",
+    "You would be ahead, just not in a retire at 40 kind of way.",
 ]
 
 _LOSS = [
     "Ouch. But hey, at least you learned something. Probably.",
-    "The market had other plans. Rude, honestly.",
-    "This is why they say 'past performance is not indicative of future results.'",
-    "Not every bet pays off. The important thing is that you're here, reading this.",
+    "The market had other plans. Rude of it, honestly.",
+    "This is why they say past performance is not indicative of future results.",
+    "Not every bet pays off. The important thing is that you are here, reading this.",
     "The market is humbling. It does this to everyone eventually.",
 ]
 
