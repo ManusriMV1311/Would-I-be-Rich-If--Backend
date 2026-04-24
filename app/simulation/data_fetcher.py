@@ -27,12 +27,23 @@ def fetch_historical_data(ticker: str, start_date: str) -> list[dict]:
 
         # Normalize metrics and discard all columns except Close
         df = df[['Close']].copy()
-        df.index = df.index.normalize().tz_localize(None)
+        
+        # Ensure index is timezone-naive to match all_dates
+        if df.index.tz is not None:
+            df.index = df.index.tz_convert(None)
+        df.index = df.index.normalize()
 
         today = datetime.today().strftime("%Y-%m-%d")
         all_dates = pd.date_range(start=start_date, end=today, freq='D')
-        df = df.reindex(all_dates).ffill().bfill()
+        
+        # Reindex and fill NaNs carefully
+        df = df.reindex(all_dates)
+        df = df.ffill().bfill() # Fill forward from available data, then backward for the start
 
+        # Check for remaining NaNs (if ticker had NO data at all)
+        if df['Close'].isna().all():
+            raise ValueError(f"No valid price data found for ticker '{ticker}' in this range.")
+        
         # Format output
         result = [
             {
