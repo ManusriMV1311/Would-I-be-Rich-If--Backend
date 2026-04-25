@@ -30,12 +30,26 @@ class LumpSumSimulator:
         print(f"Final Value: {current_value}")
 
         # Map dynamic simulation values across the historic footprint array
+        # Optimization: Downsample if too many points (e.g. > 500) to keep Recharts snappy
         chart_data = []
-        for point in self.price_data:
+        step = 1
+        if len(self.price_data) > 500:
+            step = len(self.price_data) // 500
+
+        for i in range(0, len(self.price_data), step):
+            point = self.price_data[i]
             value = units * point["price"]
             chart_data.append({
                 "date": point["date"],
                 "value": round(value, 2)
+            })
+        
+        # Ensure the last point is always included for accuracy
+        if step > 1 and chart_data[-1]["date"] != self.price_data[-1]["date"]:
+            last_point = self.price_data[-1]
+            chart_data.append({
+                "date": last_point["date"],
+                "value": round(units * last_point["price"], 2)
             })
 
         return {

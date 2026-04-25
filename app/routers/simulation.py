@@ -106,7 +106,10 @@ def simulate_lump_sum(request: LumpSumRequest):
     print("Received amount:", request.amount)
     try:
         data = fetch_historical_data(request.ticker, request.start_date)
-        live_price = fetch_live_price(request.ticker)
+        
+        # Optimization: Use the last price from historical data as the live price
+        # This avoids a redundant second call to Yahoo Finance (approx 1s savings)
+        live_price = data[-1]["price"] if data else fetch_live_price(request.ticker)
 
         sim = LumpSumSimulator(
             ticker=request.ticker,
